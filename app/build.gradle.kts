@@ -3,6 +3,9 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+var secretProperties = org.jetbrains.kotlin.konan.properties.Properties()
+secretProperties.load(rootProject.file("secret.properties").inputStream())
+
 android {
     namespace = "com.example.weatherapp"
     compileSdk = 33
@@ -15,6 +18,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField ("String", "BaseUrl", secretProperties.getProperty("BASE_URL"))
+        buildConfigField ("String", "ApiKey", secretProperties.getProperty("API_KEY"))
     }
 
     buildTypes {
@@ -23,6 +29,11 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -42,6 +53,12 @@ dependencies {
 
     // Kotlin
     implementation("androidx.core:core-ktx:1.10.1")
+
+    //Retrofit
+    implementation("com.google.code.gson:gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
     // Tests
     testImplementation("junit:junit:4.13.2")
