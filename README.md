@@ -1,5 +1,5 @@
 # WeatherApp
-`Android` | `Kotlin` | `Weather Application`
+`Android` | `Kotlin` | `Weather Application` | `в процессе разработки`
 
 —
 
