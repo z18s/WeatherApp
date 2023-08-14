@@ -1,14 +1,14 @@
 package com.example.weatherapp.mvp.presenter
 
-import com.example.weatherapp.utils.logger
 import com.example.weatherapp.mvp.model.DataRequest
-import com.example.weatherapp.mvp.model.tools.Language
 import com.example.weatherapp.mvp.model.retrofit.IRetrofit
+import com.example.weatherapp.mvp.model.tools.Language
+import com.example.weatherapp.mvp.model.tools.tempCelsiusToString
 import com.example.weatherapp.mvp.view.IMainView
+import com.example.weatherapp.utils.logger
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.math.roundToInt
 
 class MainPresenter(private var retrofit: IRetrofit) : IMainPresenter {
 
@@ -25,14 +25,13 @@ class MainPresenter(private var retrofit: IRetrofit) : IMainPresenter {
             override fun onResponse(call: Call<DataRequest>, response: Response<DataRequest>) {
                 view?.apply {
                     if (response.isSuccessful) {
-                        val city = response.body()?.name.toString()
-                        val country = response.body()?.sys?.country.toString()
-                        val temperature = response.body()?.main?.temp
-                            ?.minus(273.15)?.times(10)?.roundToInt()?.div(10.0f).toString()
-                        val result = "$city, $country: $temperature ℃".also { logger.log(it) }
+                        val city = response.body()?.name
+                        val country = response.body()?.sys?.country
+                        val temperature = response.body()?.main?.run { tempCelsiusToString(temp) }
+                        val result = "$city ($country): $temperature".also { logger.log(it) }
                         setText(result)
                     } else {
-                        val msg = response.code().toString()
+                        val msg = "${response.code()}: ${response.message()}"
                         logger.log(msg)
                         showToast(msg)
                     }
