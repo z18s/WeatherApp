@@ -1,4 +1,4 @@
-package com.example.weatherapp.logger
+package com.example.weatherapp.utils
 
 import android.util.Log
 import kotlin.properties.ReadOnlyProperty
@@ -22,11 +22,7 @@ class Logger(thisRef: Any, tag: String?) {
             else -> Log.v(tag, message, t)
         }
     }
-
-    private fun Any.toTag(): String = this::class.java.simpleName
 }
-
-inline fun <reified T : Any> T.logger(tag: String? = null) = LoggerProperty<T>(tag)
 
 class LoggerProperty<T : Any>(private val tag: String? = null) : ReadOnlyProperty<T, Logger> {
 

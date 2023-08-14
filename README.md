@@ -5,4 +5,5 @@
 
 В приложении использовано:
 * MVP
-* Retrofit
+- Retrofit
+* Custom Logger by Delegates

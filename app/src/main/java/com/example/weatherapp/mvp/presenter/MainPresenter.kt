@@ -1,6 +1,6 @@
 package com.example.weatherapp.mvp.presenter
 
-import com.example.weatherapp.logger.logger
+import com.example.weatherapp.utils.logger
 import com.example.weatherapp.mvp.model.DataRequest
 import com.example.weatherapp.mvp.model.retrofit.IRetrofit
 import com.example.weatherapp.mvp.view.IMainView
