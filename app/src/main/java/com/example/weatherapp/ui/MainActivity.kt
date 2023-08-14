@@ -12,6 +12,7 @@ import com.example.weatherapp.mvp.model.retrofit.RetrofitConnection
 import com.example.weatherapp.mvp.presenter.IMainPresenter
 import com.example.weatherapp.mvp.presenter.MainPresenter
 import com.example.weatherapp.mvp.view.IMainView
+import com.example.weatherapp.utils.toTag
 
 class MainActivity : AppCompatActivity(), IMainView {
 
@@ -40,12 +41,22 @@ class MainActivity : AppCompatActivity(), IMainView {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(this.toTag(), textView.text.toString())
+        super.onSaveInstanceState(outState)
+    }
+
     override fun setText(text: String) {
         textView.text = text
     }
 
     override fun showToast(text: String) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        setText(savedInstanceState.getString(this.toTag(), ""))
+        super.onRestoreInstanceState(savedInstanceState)
     }
 
     override fun onDestroy() {
