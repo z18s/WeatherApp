@@ -8,5 +8,9 @@ import retrofit2.http.Query
 
 interface IDataSource {
     @GET("data/2.5/weather")
-    fun loadWeatherByCity(@Query("q")city: String, @Query("appid") apiKey: String = BuildConfig.ApiKey): Call<DataRequest>
+    fun loadWeatherByCity(
+        @Query("q") city: String,
+        @Query("lang") lang: String,
+        @Query("appid") apiKey: String = BuildConfig.ApiKey
+    ): Call<DataRequest>
 }

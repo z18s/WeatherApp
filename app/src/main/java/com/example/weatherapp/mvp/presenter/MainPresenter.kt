@@ -2,6 +2,7 @@ package com.example.weatherapp.mvp.presenter
 
 import com.example.weatherapp.utils.logger
 import com.example.weatherapp.mvp.model.DataRequest
+import com.example.weatherapp.mvp.model.tools.Language
 import com.example.weatherapp.mvp.model.retrofit.IRetrofit
 import com.example.weatherapp.mvp.view.IMainView
 import retrofit2.Call
@@ -13,12 +14,14 @@ class MainPresenter(private var retrofit: IRetrofit) : IMainPresenter {
 
     private val logger by logger()
 
+    private var language = Language.Russian
+
     private var view: IMainView? = null
 
     override fun onClick(request: String) = getWeatherByCity(request)
 
     private fun getWeatherByCity(request: String) =
-        retrofit.loadWeatherByCity(request).enqueue(object : Callback<DataRequest> {
+        retrofit.loadWeatherByCity(request, language.code).enqueue(object : Callback<DataRequest> {
             override fun onResponse(call: Call<DataRequest>, response: Response<DataRequest>) {
                 view?.apply {
                     if (response.isSuccessful) {
