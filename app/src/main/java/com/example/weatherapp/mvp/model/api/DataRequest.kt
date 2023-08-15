@@ -1,11 +1,11 @@
-package com.example.weatherapp.mvp.model
+package com.example.weatherapp.mvp.model.api
 
-import com.example.weatherapp.mvp.model.data.Clouds
-import com.example.weatherapp.mvp.model.data.Coord
-import com.example.weatherapp.mvp.model.data.Main
-import com.example.weatherapp.mvp.model.data.Sys
-import com.example.weatherapp.mvp.model.data.Weather
-import com.example.weatherapp.mvp.model.data.Wind
+import com.example.weatherapp.mvp.model.api.data.Clouds
+import com.example.weatherapp.mvp.model.api.data.Coord
+import com.example.weatherapp.mvp.model.api.data.Main
+import com.example.weatherapp.mvp.model.api.data.Sys
+import com.example.weatherapp.mvp.model.api.data.Weather
+import com.example.weatherapp.mvp.model.api.data.Wind
 import com.google.gson.annotations.SerializedName
 
 data class DataRequest (

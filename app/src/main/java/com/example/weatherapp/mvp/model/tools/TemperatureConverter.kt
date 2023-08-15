@@ -1,6 +1,6 @@
 package com.example.weatherapp.mvp.model.tools
 
-import com.example.weatherapp.mvp.model.data.Main
+import com.example.weatherapp.mvp.model.api.data.Main
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 

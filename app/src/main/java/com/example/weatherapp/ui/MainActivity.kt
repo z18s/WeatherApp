@@ -18,9 +18,9 @@ class MainActivity : AppCompatActivity(), IMainView {
 
     private lateinit var presenter: IMainPresenter
 
-    private lateinit var textView: TextView
-    private lateinit var editText: EditText
-    private lateinit var button: Button
+    private lateinit var tvMain: TextView
+    private lateinit var etMain: EditText
+    private lateinit var btnMain: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,22 +32,22 @@ class MainActivity : AppCompatActivity(), IMainView {
         presenter = MainPresenter(RetrofitConnection(App.INSTANCE.dataSource))
         presenter.attachView(this)
 
-        textView = findViewById(R.id.text)
-        editText = findViewById(R.id.edit_text)
-        button = findViewById(R.id.button)
+        tvMain = findViewById(R.id.tv_main)
+        etMain = findViewById(R.id.et_main)
+        btnMain = findViewById(R.id.btn_main)
 
-        button.setOnClickListener {
-            presenter.onClick(editText.text.toString())
+        btnMain.setOnClickListener {
+            presenter.onClick(etMain.text.toString())
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(this.toTag(), textView.text.toString())
+        outState.putString(this.toTag(), tvMain.text.toString())
         super.onSaveInstanceState(outState)
     }
 
     override fun setText(text: String) {
-        textView.text = text
+        tvMain.text = text
     }
 
     override fun showToast(text: String) {
