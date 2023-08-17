@@ -1,5 +1,7 @@
 package com.example.weatherapp.ui
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -18,6 +20,9 @@ class MainActivity : AppCompatActivity(), IMainView {
 
     private lateinit var presenter: IMainPresenter
 
+    private lateinit var sharedPref: SharedPreferences
+    private val prefKey: String = "LAST_QUERY"
+
     private lateinit var tvMain: TextView
     private lateinit var etMain: EditText
     private lateinit var btnMain: Button
@@ -29,6 +34,7 @@ class MainActivity : AppCompatActivity(), IMainView {
     }
 
     private fun init() {
+        sharedPref = getPreferences(Context.MODE_PRIVATE)
         presenter = MainPresenter(RetrofitConnection(App.INSTANCE.dataSource))
         presenter.attachView(this)
 
@@ -36,8 +42,13 @@ class MainActivity : AppCompatActivity(), IMainView {
         etMain = findViewById(R.id.et_main)
         btnMain = findViewById(R.id.btn_main)
 
+        val sharedQuery: String = sharedPref.getString(prefKey, "") ?: ""
+        etMain.setText(sharedQuery)
+
         btnMain.setOnClickListener {
-            presenter.onClick(etMain.text.toString())
+            val query = etMain.text.toString()
+            sharedPref.edit().putString(prefKey, query).apply()
+            presenter.onClick(query)
         }
     }
 

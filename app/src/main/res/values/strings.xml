@@ -2,7 +2,5 @@
     <string name="app_name">WeatherApp</string>
 
     <!--  Main Activity  -->
-    <string name="main_edittext_text">City</string>
-    <string name="main_textview_text">City</string>
     <string name="main_button_text">Click</string>
 </resources>
