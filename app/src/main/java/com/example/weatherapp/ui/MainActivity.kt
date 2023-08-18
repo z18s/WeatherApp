@@ -10,8 +10,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.weatherapp.R
 import com.example.weatherapp.application.App
-import com.example.weatherapp.mvp.model.retrofit.RetrofitConnection
-import com.example.weatherapp.mvp.presenter.IMainPresenter
+import com.example.weatherapp.mvp.model.api.retrofit.RetrofitConnection
+import com.example.weatherapp.mvp.model.database.room.RoomConnection
 import com.example.weatherapp.mvp.presenter.MainPresenter
 import com.example.weatherapp.mvp.view.IMainView
 import com.example.weatherapp.utils.toTag
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(), IMainView {
 
     private fun init() {
         sharedPref = getPreferences(Context.MODE_PRIVATE)
-        presenter = MainPresenter(RetrofitConnection(App.INSTANCE.dataSource))
+        presenter = MainPresenter(RetrofitConnection(App.getInstance().dataSource), RoomConnection(App.getInstance().database))
         presenter.attachView(this)
 
         tvMain = findViewById(R.id.tv_main)
