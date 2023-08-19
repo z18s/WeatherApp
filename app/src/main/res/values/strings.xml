@@ -3,4 +3,5 @@
 
     <!--  Main Activity  -->
     <string name="main_button_text">Click</string>
+    <string name="image_favorites_text">Favorites</string>
 </resources>

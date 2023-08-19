@@ -11,6 +11,7 @@
         android:id="@+id/et_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:focusable="auto"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,12 +27,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_main" />
 
-    <TextView
-        android:id="@+id/tv_main"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/ll_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_main">
+
+        <TextView
+            android:id="@+id/tv_main"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/iv_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:contentDescription="@string/image_favorites_text" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_favorites"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_main" />
+        app:layout_constraintTop_toBottomOf="@+id/ll_main" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

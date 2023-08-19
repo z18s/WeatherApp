@@ -6,4 +6,8 @@ interface IMainPresenter {
     fun attachView(view: IMainView)
     fun detachView()
     fun onClick(request: String)
+    fun onClickFavorite(request: String)
+    fun onFavoriteIconClick()
+    fun getFavoritesPresenter(): IFavoritesPresenter
+    fun setRecyclerData()
 }
