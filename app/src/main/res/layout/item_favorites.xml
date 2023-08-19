@@ -9,6 +9,7 @@
     <TextView
         android:id="@+id/tv_favorite_city"
         android:layout_width="0dp"
+        android:textSize="@dimen/rv_text_size"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/tv_margin"
         android:layout_weight="0.8" />
@@ -16,6 +17,7 @@
     <TextView
         android:id="@+id/tv_favorite_country"
         android:layout_width="0dp"
+        android:textSize="@dimen/rv_text_size"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/tv_margin"
         android:layout_weight="0.1" />

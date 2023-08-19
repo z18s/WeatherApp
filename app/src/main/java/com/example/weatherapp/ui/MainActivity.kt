@@ -31,10 +31,10 @@ class MainActivity : AppCompatActivity(), IMainView {
     private val prefKey: String = "LAST_QUERY"
     private val prefDefaultString: String = ""
 
+    private lateinit var etSearch: EditText
+    private lateinit var btnSearch: Button
     private lateinit var tvMain: TextView
     private lateinit var ivMain: ImageView
-    private lateinit var etMain: EditText
-    private lateinit var btnMain: Button
     private lateinit var rvFavorites: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,25 +48,36 @@ class MainActivity : AppCompatActivity(), IMainView {
         presenter = MainPresenter(RetrofitConnection(App.getInstance().dataSource), RoomConnection(App.getInstance().database))
         presenter.attachView(this)
 
+        initView()
+        initListeners()
+    }
+
+    private fun initView() {
+        etSearch = findViewById(R.id.et_search)
+        btnSearch = findViewById(R.id.btn_search)
         tvMain = findViewById(R.id.tv_main)
-        etMain = findViewById(R.id.et_main)
-        btnMain = findViewById(R.id.btn_main)
         ivMain = findViewById(R.id.iv_main)
+        rvFavorites = findViewById(R.id.rv_favorites)
 
-        val sharedQuery: String = sharedPref.getString(prefKey, prefDefaultString) ?: prefDefaultString
-        etMain.setText(sharedQuery)
+        etSearch.setText(sharedPref.getString(prefKey, prefDefaultString) ?: prefDefaultString)
 
-        etMain.setOnKeyListener { _, keyCode, event ->
+        rvFavorites.layoutManager = LinearLayoutManager(baseContext)
+        rvFavorites.adapter = FavoritesAdapter(presenter.getFavoritesPresenter())
+        presenter.setRecyclerData()
+    }
+
+    private fun initListeners() {
+        etSearch.setOnKeyListener { _, keyCode, event ->
             if ((event.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                val query = etMain.text.toString()
+                val query = etSearch.text.toString()
                 presenter.onClick(query)
                 return@setOnKeyListener true
             }
             return@setOnKeyListener false
         }
 
-        btnMain.setOnClickListener {
-            val query = etMain.text.toString()
+        btnSearch.setOnClickListener {
+            val query = etSearch.text.toString()
             presenter.onClick(query)
             sharedPref.edit().putString(prefKey, query).apply()
         }
@@ -74,11 +85,6 @@ class MainActivity : AppCompatActivity(), IMainView {
         ivMain.setOnClickListener {
             presenter.onFavoriteIconClick()
         }
-
-        rvFavorites = findViewById(R.id.rv_favorites)
-        rvFavorites.layoutManager = LinearLayoutManager(baseContext)
-        rvFavorites.adapter = FavoritesAdapter(presenter.getFavoritesPresenter())
-        presenter.setRecyclerData()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -91,7 +97,7 @@ class MainActivity : AppCompatActivity(), IMainView {
     }
 
     override fun setSearchText(text: String) {
-        etMain.setText(text)
+        etSearch.setText(text)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
