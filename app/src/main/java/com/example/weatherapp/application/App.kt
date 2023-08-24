@@ -8,6 +8,7 @@ import com.example.weatherapp.utils.logger
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 class App : Application() {
@@ -21,6 +22,7 @@ class App : Application() {
     val dataSource: IDataSource = Retrofit.Builder()
         .baseUrl(BuildConfig.BaseUrl)
         .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
         .client(client)
         .build()
         .create(IDataSource::class.java)
