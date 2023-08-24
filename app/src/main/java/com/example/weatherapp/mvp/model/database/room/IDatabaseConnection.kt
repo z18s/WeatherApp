@@ -7,5 +7,4 @@ interface IDatabaseConnection {
     fun deleteFavorite(favorite: RoomFavorite)
     fun isFavorite(id: Int): Boolean
     fun getFavorites(): List<RoomFavorite>
-//    fun getFavoriteById(id: Int): RoomFavorite
 }
