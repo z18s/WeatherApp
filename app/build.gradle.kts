@@ -9,7 +9,7 @@ secretProperties.load(rootProject.file("secret.properties").inputStream())
 
 android {
     namespace = "com.example.weatherapp"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.weatherapp"
@@ -54,7 +54,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // Kotlin
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.12.0")
 
     // Retrofit
     implementation("com.google.code.gson:gson:2.9.0")
@@ -64,7 +64,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
     // RxJava
-    implementation("io.reactivex.rxjava3:rxjava:3.1.6")
+    implementation("io.reactivex.rxjava3:rxjava:3.1.7")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
 
     // Room
