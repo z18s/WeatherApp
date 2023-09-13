@@ -2,6 +2,7 @@
     <string name="app_name">WeatherApp</string>
 
     <!--  Main Activity  -->
-    <string name="main_button_text">Click</string>
-    <string name="image_favorites_text">Favorites</string>
+    <string name="search_button_text">Search</string>
+    <string name="search_field_description">City</string>
+    <string name="image_favorite_description">Favorite Status</string>
 </resources>

@@ -1,9 +1,9 @@
 package com.example.weatherapp.mvp.view
 
 interface IMainView {
-    fun setText(text: String)
     fun setSearchText(text: String)
+    fun setWeatherText(text: String)
     fun setFavoriteIcon(state: Boolean)
-    fun updateRecyclerData()
+    fun setFavoritesList(list: List<Pair<String, String>>)
     fun showToast(text: String)
 }

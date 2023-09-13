@@ -1,8 +1,6 @@
 package com.example.weatherapp.mvp.presenter
 
 import android.annotation.SuppressLint
-import com.example.weatherapp.mvp.model.api.DataRequest
-import com.example.weatherapp.mvp.model.api.data.Sys
 import com.example.weatherapp.mvp.model.api.retrofit.IApiConnection
 import com.example.weatherapp.mvp.model.database.data.RoomFavorite
 import com.example.weatherapp.mvp.model.database.room.IDatabaseConnection
@@ -18,37 +16,40 @@ class MainPresenter(private val api: IApiConnection, private val db: IDatabaseCo
     private var language = Language.Russian
 
     private var view: IMainView? = null
-    private val favoritesPresenter: IFavoritesPresenter = FavoritesPresenter(this)
-
-    private var lastQuery: RoomFavorite? = null
+    private var currentQuery: RoomFavorite? = null
 
     override fun attachView(view: IMainView) {
         this.view = view
     }
 
-    override fun onClick(request: String) {
+    override fun onSearchClick(request: String) {
         getWeatherByCity(request)
     }
 
-    override fun onClickFavorite(request: String) {
+    override fun onFavoriteItemClick(request: String) {
         view?.setSearchText(request)
-        onClick(request)
+        onSearchClick(request)
     }
 
     override fun onFavoriteIconClick() {
-        lastQuery?.let {
-            val state = isCityFavorite(lastQuery!!.id)
+        currentQuery?.let {
+            val state = isCityFavorite(it.id)
             if (!state) {
-                addFavorite(it).run { logger.log("addFavorite(${it.city})") }
+                addFavorite(it)
+                    .subscribe { updateFavoritesList() }
+                    .run { logger.log("addFavorite(${it.city})") }
             } else {
-                deleteFavorite(it).run { logger.log("deleteFavorite(${it.city})") }
+                deleteFavorite(it)
+                    .subscribe { updateFavoritesList() }
+                    .run { logger.log("deleteFavorite(${it.city})") }
             }
             setFavoriteState(!state)
         }
-        setRecyclerData()
     }
 
-    override fun getFavoritesPresenter(): IFavoritesPresenter = favoritesPresenter
+    override fun update() {
+        updateFavoritesList()
+    }
 
     private fun getWeatherByCity(request: String) =
         api.loadWeatherByCity(request, language.code).observeOn(AndroidSchedulers.mainThread()).subscribe({ data ->
@@ -60,35 +61,35 @@ class MainPresenter(private val api: IApiConnection, private val db: IDatabaseCo
 
                 val result = "$city ($country): $temperature"
                 if (id != null && city != null && country != null) {
-                    lastQuery = RoomFavorite(id, city, country)
+                    currentQuery = RoomFavorite(id, city, country)
                         .also { logger.log("lastQuery = $result") }
                 }
-                setText(result)
+                setWeatherText(result)
 
                 val state = id?.let { isCityFavorite(it) }
                 setFavoriteState(state)
             }
         }, { showError(it) })
 
-
     @SuppressLint("CheckResult")
-    override fun setRecyclerData() {
-        favoritesPresenter.favorites.clear()
+    private fun updateFavoritesList() {
         db.getFavorites().observeOn(AndroidSchedulers.mainThread()).subscribe({ list ->
+            val pairList = mutableListOf<Pair<String, String>>()
             list.forEach {
-                favoritesPresenter.favorites.add(DataRequest(name = it.city, sys = Sys(id = it.id, country = it.country)))
+                pairList.add(it.city to it.country)
             }
-            view?.updateRecyclerData()
+            view?.setFavoritesList(pairList)
         }, { showError(it) })
     }
 
-    private fun isCityFavorite(id: Int): Boolean = db.isFavorite(id).blockingGet()
+    private fun isCityFavorite(id: Int): Boolean =
+        db.isFavorite(id).blockingGet()
 
     private fun addFavorite(favorite: RoomFavorite) =
-        db.insertFavorite(favorite).observeOn(AndroidSchedulers.mainThread()).subscribe { setRecyclerData() }
+        db.insertFavorite(favorite).observeOn(AndroidSchedulers.mainThread())
 
     private fun deleteFavorite(favorite: RoomFavorite) =
-        db.deleteFavorite(favorite).observeOn(AndroidSchedulers.mainThread()).subscribe { setRecyclerData() }
+        db.deleteFavorite(favorite).observeOn(AndroidSchedulers.mainThread())
 
     private fun setFavoriteState(state: Boolean?) =
         state?.let { view?.setFavoriteIcon(it) } ?: let { view?.setFavoriteIcon(false) }
