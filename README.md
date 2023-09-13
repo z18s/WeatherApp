@@ -5,5 +5,8 @@
 
 В приложении использовано:
 * MVP
+* Jetpack Compose
 - Retrofit
+- RxJava
+- Room
 * Custom Logger by Delegates
