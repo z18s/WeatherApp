@@ -33,6 +33,8 @@ class App : Application() {
             .also { logger.log("database = $it") }
     }
 
+    val iconUrl = BuildConfig.IconUrl
+
     companion object {
 
         @Volatile private var INSTANCE: App? = null

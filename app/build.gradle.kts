@@ -22,6 +22,7 @@ android {
 
         buildConfigField ("String", "BaseUrl", secretProperties.getProperty("BASE_URL"))
         buildConfigField ("String", "ApiKey", secretProperties.getProperty("API_KEY"))
+        buildConfigField ("String", "IconUrl", secretProperties.getProperty("ICON_URL"))
     }
 
     buildTypes {
@@ -80,6 +81,9 @@ dependencies {
     // Room
     implementation("androidx.room:room-runtime:2.5.2")
     ksp("androidx.room:room-compiler:2.5.2")
+
+    // Glide
+    implementation("com.github.bumptech.glide:compose:1.0.0-alpha.6")
 
     // Tests
     testImplementation("junit:junit:4.13.2")

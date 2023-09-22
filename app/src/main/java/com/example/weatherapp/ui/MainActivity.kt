@@ -38,6 +38,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.weatherapp.R
 import com.example.weatherapp.application.App
 import com.example.weatherapp.mvp.model.api.retrofit.RetrofitConnection
@@ -53,6 +55,8 @@ class MainActivity : ComponentActivity(), IMainView {
     companion object {
         const val SEARCH_TAG = "SEARCH_TEXT"
         const val WEATHER_TAG = "WEATHER_TEXT"
+        const val ICON_URL_TAG = "ICON_URL_TAG"
+        const val ICON_DESCRIPTION_TAG = "ICON_DESCRIPTION_TAG"
         const val FAVORITE_TAG = "FAVORITE_STATUS"
 
         const val EMPTY_STRING = ""
@@ -62,6 +66,7 @@ class MainActivity : ComponentActivity(), IMainView {
 
     private lateinit var queryState: MutableState<String>
     private lateinit var weatherState: MutableState<String>
+    private lateinit var iconState: MutableState<Pair<String, String>>
     private lateinit var favoriteStatusState: MutableState<Boolean>
     private lateinit var favoritesListState: MutableState<List<Pair<String, String>>>
 
@@ -74,10 +79,13 @@ class MainActivity : ComponentActivity(), IMainView {
         setContent {
             val text = savedInstanceState?.getString(SEARCH_TAG, EMPTY_STRING) ?: EMPTY_STRING
             val weather = savedInstanceState?.getString(WEATHER_TAG, EMPTY_STRING) ?: EMPTY_STRING
+            val iconUrl = savedInstanceState?.getString(ICON_URL_TAG, EMPTY_STRING) ?: EMPTY_STRING
+            val iconDescription = savedInstanceState?.getString(ICON_DESCRIPTION_TAG, EMPTY_STRING) ?: EMPTY_STRING
             val status = savedInstanceState?.getBoolean(FAVORITE_TAG, false) ?: false
             val list = emptyList<Pair<String, String>>()
             queryState = remember { mutableStateOf(text) }
             weatherState = remember { mutableStateOf(weather) }
+            iconState = remember { mutableStateOf(iconUrl to iconDescription) }
             favoriteStatusState = remember { mutableStateOf(status) }
             favoritesListState = remember { mutableStateOf(list) }
 
@@ -138,6 +146,7 @@ class MainActivity : ComponentActivity(), IMainView {
         }
     }
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     private fun CurrentWeather(weather: MutableState<String>, favoriteStatus: MutableState<Boolean>) {
         val weatherFieldHeight = dimensionResource(R.dimen.weather_field_height)
@@ -154,6 +163,10 @@ class MainActivity : ComponentActivity(), IMainView {
                 text = weather.value,
                 style = MaterialTheme.typography.titleMedium
             )
+
+            Spacer(modifier = Modifier.width(spacerWidth))
+
+            GlideImage(model = iconState.value.first, contentDescription = iconState.value.second)
 
             Spacer(modifier = Modifier.width(spacerWidth))
 
@@ -232,8 +245,9 @@ class MainActivity : ComponentActivity(), IMainView {
         queryState.value = text
     }
 
-    override fun setWeatherText(text: String) {
+    override fun setWeatherText(text: String, icon: Pair<String, String>) {
         weatherState.value = text
+        iconState.value = getIconUrl(icon.first) to icon.second
     }
 
     override fun setFavoriteIcon(state: Boolean) {
@@ -244,6 +258,8 @@ class MainActivity : ComponentActivity(), IMainView {
         favoritesListState.value = list
     }
 
+    private fun getIconUrl(iconName: String): String = App.getInstance().iconUrl + iconName + "@4x.png"
+
     override fun showToast(text: String) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
     }
@@ -251,6 +267,8 @@ class MainActivity : ComponentActivity(), IMainView {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(SEARCH_TAG, queryState.value)
         outState.putString(WEATHER_TAG, weatherState.value)
+        outState.putString(ICON_URL_TAG, iconState.value.first)
+        outState.putString(ICON_DESCRIPTION_TAG, iconState.value.second)
         outState.putBoolean(FAVORITE_TAG, favoriteStatusState.value)
         super.onSaveInstanceState(outState)
     }

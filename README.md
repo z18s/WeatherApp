@@ -7,6 +7,7 @@
 * MVP
 * Jetpack Compose
 - Retrofit
-- RxJava
+- Glide
 - Room
+- RxJava
 * Custom Logger by Delegates
