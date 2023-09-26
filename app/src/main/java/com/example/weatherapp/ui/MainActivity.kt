@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,9 +56,10 @@ class MainActivity : ComponentActivity(), IMainView {
 
     companion object {
         const val SEARCH_TAG = "SEARCH_TEXT"
+        const val CITY_TAG = "WEATHER_CITY"
         const val WEATHER_TAG = "WEATHER_TEXT"
-        const val ICON_URL_TAG = "ICON_URL_TAG"
-        const val ICON_DESCRIPTION_TAG = "ICON_DESCRIPTION_TAG"
+        const val ICON_URL_TAG = "ICON_URL"
+        const val ICON_DESCRIPTION_TAG = "ICON_DESCRIPTION"
         const val FAVORITE_TAG = "FAVORITE_STATUS"
 
         const val EMPTY_STRING = ""
@@ -65,6 +68,7 @@ class MainActivity : ComponentActivity(), IMainView {
     private lateinit var presenter: IMainPresenter
 
     private lateinit var queryState: MutableState<String>
+    private lateinit var cityState: MutableState<String>
     private lateinit var weatherState: MutableState<String>
     private lateinit var iconState: MutableState<Pair<String, String>>
     private lateinit var favoriteStatusState: MutableState<Boolean>
@@ -77,13 +81,15 @@ class MainActivity : ComponentActivity(), IMainView {
         presenter.attachView(this)
 
         setContent {
-            val text = savedInstanceState?.getString(SEARCH_TAG, EMPTY_STRING) ?: EMPTY_STRING
+            val query = savedInstanceState?.getString(SEARCH_TAG, EMPTY_STRING) ?: EMPTY_STRING
+            val city = savedInstanceState?.getString(CITY_TAG, EMPTY_STRING) ?: EMPTY_STRING
             val weather = savedInstanceState?.getString(WEATHER_TAG, EMPTY_STRING) ?: EMPTY_STRING
             val iconUrl = savedInstanceState?.getString(ICON_URL_TAG, EMPTY_STRING) ?: EMPTY_STRING
             val iconDescription = savedInstanceState?.getString(ICON_DESCRIPTION_TAG, EMPTY_STRING) ?: EMPTY_STRING
             val status = savedInstanceState?.getBoolean(FAVORITE_TAG, false) ?: false
             val list = emptyList<Pair<String, String>>()
-            queryState = remember { mutableStateOf(text) }
+            queryState = remember { mutableStateOf(query) }
+            cityState = remember { mutableStateOf(city) }
             weatherState = remember { mutableStateOf(weather) }
             iconState = remember { mutableStateOf(iconUrl to iconDescription) }
             favoriteStatusState = remember { mutableStateOf(status) }
@@ -93,7 +99,7 @@ class MainActivity : ComponentActivity(), IMainView {
 
             WeatherAppTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    MainScreen(queryState, weatherState, favoriteStatusState, favoritesListState)
+                    MainScreen(queryState, cityState, weatherState, favoriteStatusState, favoritesListState)
                 }
             }
         }
@@ -102,13 +108,14 @@ class MainActivity : ComponentActivity(), IMainView {
     @Composable
     private fun MainScreen(
         query: MutableState<String>,
+        city: MutableState<String>,
         weather: MutableState<String>,
         favoriteStatus: MutableState<Boolean>,
         favoritesList: MutableState<List<Pair<String, String>>>
     ) {
         Column {
             SearchField(query)
-            CurrentWeather(weather, favoriteStatus)
+            CurrentWeather(city, weather, favoriteStatus)
             FavoritesList(favoritesList)
         }
     }
@@ -148,7 +155,11 @@ class MainActivity : ComponentActivity(), IMainView {
 
     @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
-    private fun CurrentWeather(weather: MutableState<String>, favoriteStatus: MutableState<Boolean>) {
+    private fun CurrentWeather(
+        city: MutableState<String>,
+        weather: MutableState<String>,
+        favoriteStatus: MutableState<Boolean>
+    ) {
         val weatherFieldHeight = dimensionResource(R.dimen.weather_field_height)
         val spacerWidth = dimensionResource(R.dimen.spacer_width)
 
@@ -160,6 +171,13 @@ class MainActivity : ComponentActivity(), IMainView {
                 .height(weatherFieldHeight)
         ) {
             Text(
+                text = city.value,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.width(spacerWidth))
+
+            Text(
                 text = weather.value,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -170,13 +188,14 @@ class MainActivity : ComponentActivity(), IMainView {
 
             Spacer(modifier = Modifier.width(spacerWidth))
 
-            if (weather.value != EMPTY_STRING) {
-                Image(
-                    imageVector = if (favoriteStatus.value) (Icons.Filled.Favorite) else (Icons.Filled.FavoriteBorder),
-                    contentDescription = stringResource(R.string.image_favorite_description),
-                    modifier = Modifier
-                        .clickable { presenter.onFavoriteIconClick() }
-                )
+            if (city.value != EMPTY_STRING) {
+                IconButton(onClick = { presenter.onFavoriteIconClick() }) {
+                    Icon(
+                        imageVector = if (favoriteStatus.value) (Icons.Filled.Favorite) else (Icons.Filled.FavoriteBorder),
+                        contentDescription = stringResource(R.string.image_favorite_description),
+                        tint = if (favoriteStatus.value) (Color.Red) else (Color.Black)
+                    )
+                }
             }
         }
     }
@@ -232,12 +251,13 @@ class MainActivity : ComponentActivity(), IMainView {
     @Composable
     private fun DefaultPreview() {
         queryState = remember { mutableStateOf("Request") }
+        cityState = remember { mutableStateOf("Current City") }
         weatherState = remember { mutableStateOf("Weather Here") }
         favoriteStatusState = remember { mutableStateOf(true) }
         favoritesListState = remember { mutableStateOf(listOf("1111" to "1", "2222" to "2", "3333" to "3")) }
 
         WeatherAppTheme {
-            MainScreen(queryState, weatherState, favoriteStatusState, favoritesListState)
+            MainScreen(queryState, cityState, weatherState, favoriteStatusState, favoritesListState)
         }
     }
 
@@ -245,8 +265,9 @@ class MainActivity : ComponentActivity(), IMainView {
         queryState.value = text
     }
 
-    override fun setWeatherText(text: String, icon: Pair<String, String>) {
-        weatherState.value = text
+    override fun setWeatherData(city: String, weather: String, icon: Pair<String, String>) {
+        cityState.value = city
+        weatherState.value = weather
         iconState.value = getIconUrl(icon.first) to icon.second
     }
 
@@ -266,6 +287,7 @@ class MainActivity : ComponentActivity(), IMainView {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(SEARCH_TAG, queryState.value)
+        outState.putString(CITY_TAG, cityState.value)
         outState.putString(WEATHER_TAG, weatherState.value)
         outState.putString(ICON_URL_TAG, iconState.value.first)
         outState.putString(ICON_DESCRIPTION_TAG, iconState.value.second)

@@ -57,16 +57,17 @@ class MainPresenter(private val api: IApiConnection, private val db: IDatabaseCo
                 val id = data.id
                 val city = data.name
                 val country = data.sys?.country
-                val temperature = data.main?.let { it.tempCelsiusToString(it.temp) }
+                val temp = data.main?.let { it.tempCelsiusToString(it.temp) }
                 val iconName = data.weather.first().icon ?: ""
                 val iconDescription = data.weather.first().description ?: ""
 
-                val result = "$city ($country): $temperature"
+                val place = "$city ($country)"
+                val weather = "$temp"
                 if (id != null && city != null && country != null) {
                     currentQuery = RoomFavorite(id, city, country)
-                        .also { logger.log("lastQuery = $result") }
+                        .also { logger.log("lastQuery = $place $weather") }
                 }
-                setWeatherText(result, iconName to iconDescription)
+                setWeatherData(place, weather, iconName to iconDescription)
 
                 val state = id?.let { isCityFavorite(it) }
                 setFavoriteState(state)
