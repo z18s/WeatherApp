@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,13 +21,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,6 +91,7 @@ class MainActivity : ComponentActivity(), IMainView {
             val iconDescription = savedInstanceState?.getString(ICON_DESCRIPTION_TAG, EMPTY_STRING) ?: EMPTY_STRING
             val status = savedInstanceState?.getBoolean(FAVORITE_TAG, false) ?: false
             val list = emptyList<Pair<String, String>>()
+
             queryState = remember { mutableStateOf(query) }
             cityState = remember { mutableStateOf(city) }
             weatherState = remember { mutableStateOf(weather) }
@@ -98,68 +102,57 @@ class MainActivity : ComponentActivity(), IMainView {
             presenter.update()
 
             WeatherAppTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    MainScreen(queryState, cityState, weatherState, favoriteStatusState, favoritesListState)
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun MainScreen(
-        query: MutableState<String>,
-        city: MutableState<String>,
-        weather: MutableState<String>,
-        favoriteStatus: MutableState<Boolean>,
-        favoritesList: MutableState<List<Pair<String, String>>>
-    ) {
-        Column {
-            SearchField(query)
-            CurrentWeather(city, weather, favoriteStatus)
-            FavoritesList(favoritesList)
-        }
-    }
-
-    @Composable
-    private fun SearchField(query: MutableState<String>) {
-        val spacerWidth = dimensionResource(R.dimen.spacer_width)
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            TextField(
-                value = query.value,
-                onValueChange = { query.value = it },
-                textStyle = MaterialTheme.typography.titleLarge,
-                placeholder = { Text(stringResource(R.string.search_field_description)) },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-            )
-
-            Spacer(modifier = Modifier.width(spacerWidth))
-
-            Button(
-                onClick = { presenter.onSearchClick(query.value) },
-                modifier = Modifier
-                    .fillMaxWidth(0.95f)
-            ) {
-                Text(
-                    text = stringResource(R.string.search_button_text)
+                Scaffold(
+                    topBar = { TopBar(cityState, favoriteStatusState) },
+                    content = { paddings -> MainScreen(paddings, weatherState, favoritesListState) },
+                    bottomBar = { BottomBar(queryState) }
                 )
             }
         }
     }
 
-    @OptIn(ExperimentalGlideComposeApi::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun CurrentWeather(
+    private fun TopBar(
         city: MutableState<String>,
-        weather: MutableState<String>,
         favoriteStatus: MutableState<Boolean>
     ) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = city.value,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
+            actions = {
+                if (city.value != EMPTY_STRING) {
+                    IconButton(onClick = { presenter.onFavoriteIconClick() }) {
+                        Icon(
+                            imageVector = if (favoriteStatus.value) (Icons.Filled.Favorite) else (Icons.Filled.FavoriteBorder),
+                            contentDescription = stringResource(R.string.image_favorite_description),
+                            tint = if (favoriteStatus.value) (Color.Red) else (Color.Black)
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun MainScreen(
+        paddings: PaddingValues,
+        weather: MutableState<String>,
+        favoritesList: MutableState<List<Pair<String, String>>>
+    ) {
+        Column (modifier = Modifier.padding(paddings)) {
+            CurrentWeather(weather)
+            FavoritesList(favoritesList)
+        }
+    }
+
+    @OptIn(ExperimentalGlideComposeApi::class)
+    @Composable
+    private fun CurrentWeather(weather: MutableState<String>) {
         val weatherFieldHeight = dimensionResource(R.dimen.weather_field_height)
         val spacerWidth = dimensionResource(R.dimen.spacer_width)
 
@@ -171,13 +164,6 @@ class MainActivity : ComponentActivity(), IMainView {
                 .height(weatherFieldHeight)
         ) {
             Text(
-                text = city.value,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.width(spacerWidth))
-
-            Text(
                 text = weather.value,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -185,18 +171,6 @@ class MainActivity : ComponentActivity(), IMainView {
             Spacer(modifier = Modifier.width(spacerWidth))
 
             GlideImage(model = iconState.value.first, contentDescription = iconState.value.second)
-
-            Spacer(modifier = Modifier.width(spacerWidth))
-
-            if (city.value != EMPTY_STRING) {
-                IconButton(onClick = { presenter.onFavoriteIconClick() }) {
-                    Icon(
-                        imageVector = if (favoriteStatus.value) (Icons.Filled.Favorite) else (Icons.Filled.FavoriteBorder),
-                        contentDescription = stringResource(R.string.image_favorite_description),
-                        tint = if (favoriteStatus.value) (Color.Red) else (Color.Black)
-                    )
-                }
-            }
         }
     }
 
@@ -232,7 +206,7 @@ class MainActivity : ComponentActivity(), IMainView {
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .padding(itemPaddings)
-                    .clickable { presenter.onFavoriteItemClick(pair.first) }
+                    .clickable { presenter.onSearchClick(pair.first) }
             )
 
             Spacer(modifier = Modifier.width(spacerWidth))
@@ -247,6 +221,38 @@ class MainActivity : ComponentActivity(), IMainView {
         }
     }
 
+    @Composable
+    private fun BottomBar(query: MutableState<String>) {
+        val focusManager = LocalFocusManager.current
+        val shapeCorner = dimensionResource(R.dimen.search_shape_corner)
+
+        BottomAppBar {
+            OutlinedTextField(
+                value = query.value,
+                onValueChange = { query.value = it },
+                textStyle = MaterialTheme.typography.titleLarge,
+                placeholder = { Text(stringResource(R.string.search_field_description)) },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            presenter.onSearchClick(query.value)
+                            focusManager.clearFocus()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = stringResource(R.string.search_button_text)
+                        )
+                    }
+                },
+                isError = false,
+                singleLine = true,
+                shape = RoundedCornerShape(shapeCorner),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+
     @Preview(showBackground = true)
     @Composable
     private fun DefaultPreview() {
@@ -257,15 +263,16 @@ class MainActivity : ComponentActivity(), IMainView {
         favoritesListState = remember { mutableStateOf(listOf("1111" to "1", "2222" to "2", "3333" to "3")) }
 
         WeatherAppTheme {
-            MainScreen(queryState, cityState, weatherState, favoriteStatusState, favoritesListState)
+            Scaffold(
+                topBar = { TopBar(cityState, favoriteStatusState) },
+                content = { paddings -> MainScreen(paddings, weatherState, favoritesListState) },
+                bottomBar = { BottomBar(queryState) }
+            )
         }
     }
 
-    override fun setSearchText(text: String) {
-        queryState.value = text
-    }
-
     override fun setWeatherData(city: String, weather: String, icon: Pair<String, String>) {
+        queryState.value = EMPTY_STRING
         cityState.value = city
         weatherState.value = weather
         iconState.value = getIconUrl(icon.first) to icon.second

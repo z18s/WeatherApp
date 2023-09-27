@@ -6,7 +6,6 @@ interface IMainPresenter {
     fun attachView(view: IMainView)
     fun detachView()
     fun onSearchClick(request: String)
-    fun onFavoriteItemClick(request: String)
     fun onFavoriteIconClick()
     fun update()
 }

@@ -26,11 +26,6 @@ class MainPresenter(private val api: IApiConnection, private val db: IDatabaseCo
         getWeatherByCity(request)
     }
 
-    override fun onFavoriteItemClick(request: String) {
-        view?.setSearchText(request)
-        onSearchClick(request)
-    }
-
     override fun onFavoriteIconClick() {
         currentQuery?.let {
             val state = isCityFavorite(it.id)
