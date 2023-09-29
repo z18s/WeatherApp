@@ -6,7 +6,7 @@
     <dimen name="list_shape_corner">4dp</dimen>
     <dimen name="search_shape_corner">20dp</dimen>
 
-    <dimen name="weather_field_height">60dp</dimen>
+    <dimen name="weather_field_height">100dp</dimen>
     <dimen name="spacer_height">10dp</dimen>
     <dimen name="spacer_width">10dp</dimen>
 </resources>

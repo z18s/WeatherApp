@@ -55,6 +55,8 @@ class MainPresenter(private val api: IApiConnection, private val db: IDatabaseCo
                 val temp = data.main?.let { it.tempCelsiusToString(it.temp) }
                 val iconName = data.weather.first().icon ?: ""
                 val iconDescription = data.weather.first().description ?: ""
+                val humidity = data.main?.humidity
+                val cloudy = data.clouds?.all
 
                 val place = "$city ($country)"
                 val weather = "$temp"
@@ -62,7 +64,7 @@ class MainPresenter(private val api: IApiConnection, private val db: IDatabaseCo
                     currentQuery = RoomFavorite(id, city, country)
                         .also { logger.log("lastQuery = $place $weather") }
                 }
-                setWeatherData(place, weather, iconName to iconDescription)
+                setWeatherData(place, weather, humidity, cloudy, iconName to iconDescription)
 
                 val state = id?.let { isCityFavorite(it) }
                 setFavoriteState(state)

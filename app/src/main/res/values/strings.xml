@@ -5,4 +5,7 @@
     <string name="search_button_text">Search</string>
     <string name="search_field_description">City</string>
     <string name="image_favorite_description">Favorite Status</string>
+
+    <string name="property_row_humidity">Humidity(%):</string>
+    <string name="property_row_cloudy">Cloudy(%):</string>
 </resources>
