@@ -40,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,20 +68,8 @@ import com.example.weatherapp.ui.theme.WeatherAppTheme
 
 class MainActivity : ComponentActivity(), IMainView {
 
-    companion object {
-        const val SEARCH_TAG = "SEARCH_TEXT"
-        const val CITY_TAG = "WEATHER_CITY"
-        const val WEATHER_TAG = "WEATHER_TEXT"
-        const val HUMIDITY_TAG = "HUMIDITY_NUM"
-        const val CLOUDY_TAG = "CLOUDY_NUM"
-        const val ICON_URL_TAG = "ICON_URL"
-        const val ICON_DESCRIPTION_TAG = "ICON_DESCRIPTION"
-        const val FAVORITE_TAG = "FAVORITE_STATUS"
-
-        const val EMPTY_STRING = ""
-    }
-
     private lateinit var presenter: IMainPresenter
+    private val emptyString = ""
 
     private lateinit var queryState: MutableState<String>
     private lateinit var cityState: MutableState<String>
@@ -98,24 +87,24 @@ class MainActivity : ComponentActivity(), IMainView {
         presenter.attachView(this)
 
         setContent {
-            val query = savedInstanceState?.getString(SEARCH_TAG, EMPTY_STRING) ?: EMPTY_STRING
-            val city = savedInstanceState?.getString(CITY_TAG, EMPTY_STRING) ?: EMPTY_STRING
-            val weather = savedInstanceState?.getString(WEATHER_TAG, EMPTY_STRING) ?: EMPTY_STRING
-            val humidity = savedInstanceState?.getInt(HUMIDITY_TAG)
-            val cloudy = savedInstanceState?.getInt(CLOUDY_TAG)
-            val iconUrl = savedInstanceState?.getString(ICON_URL_TAG, EMPTY_STRING) ?: EMPTY_STRING
-            val iconDescription = savedInstanceState?.getString(ICON_DESCRIPTION_TAG, EMPTY_STRING) ?: EMPTY_STRING
-            val status = savedInstanceState?.getBoolean(FAVORITE_TAG, false) ?: false
+            val query = emptyString
+            val city = emptyString
+            val weather = emptyString
+            val humidity = null
+            val cloudy = null
+            val iconUrl = emptyString
+            val iconDescription = emptyString
+            val status = false
             val list = emptyList<Pair<String, String>>()
 
-            queryState = remember { mutableStateOf(query) }
-            cityState = remember { mutableStateOf(city) }
-            weatherState = remember { mutableStateOf(weather) }
-            humidityState = remember { mutableStateOf(humidity) }
-            cloudyState = remember { mutableStateOf(cloudy) }
-            iconState = remember { mutableStateOf(iconUrl to iconDescription) }
-            favoriteStatusState = remember { mutableStateOf(status) }
-            favoritesListState = remember { mutableStateOf(list) }
+            queryState = rememberSaveable(query) { mutableStateOf(query) }
+            cityState = rememberSaveable(city) { mutableStateOf(city) }
+            weatherState = rememberSaveable(weather) { mutableStateOf(weather) }
+            humidityState = rememberSaveable(humidity) { mutableStateOf(humidity) }
+            cloudyState = rememberSaveable(cloudy) { mutableStateOf(cloudy) }
+            iconState = rememberSaveable(iconUrl to iconDescription) { mutableStateOf(iconUrl to iconDescription) }
+            favoriteStatusState = rememberSaveable(status) { mutableStateOf(status) }
+            favoritesListState = rememberSaveable(list) { mutableStateOf(list) }
 
             presenter.update()
 
@@ -143,7 +132,7 @@ class MainActivity : ComponentActivity(), IMainView {
                 )
             },
             actions = {
-                if (city.value != EMPTY_STRING) {
+                if (city.value != emptyString) {
                     IconButton(onClick = { presenter.onFavoriteIconClick() }) {
                         Icon(
                             imageVector = if (favoriteStatus.value) (Icons.Filled.Favorite) else (Icons.Filled.FavoriteBorder),
@@ -357,7 +346,7 @@ class MainActivity : ComponentActivity(), IMainView {
         humidityState = remember { mutableStateOf(70) }
         cloudyState = remember { mutableStateOf(90) }
         favoriteStatusState = remember { mutableStateOf(true) }
-        favoritesListState = remember { mutableStateOf(listOf("1111" to "1", "2222" to "2", "3333" to "3")) }
+        favoritesListState = remember { mutableStateOf(listOf("Moscow" to "RU", "Washington" to "US", "London" to "UK")) }
 
         WeatherAppTheme {
             Scaffold(
@@ -369,7 +358,7 @@ class MainActivity : ComponentActivity(), IMainView {
     }
 
     override fun setWeatherData(city: String, weather: String, humidity: Int?, cloudy: Int?, icon: Pair<String, String>) {
-        queryState.value = EMPTY_STRING
+        queryState.value = emptyString
         cityState.value = city
         weatherState.value = weather
         humidityState.value = humidity
@@ -389,18 +378,6 @@ class MainActivity : ComponentActivity(), IMainView {
 
     override fun showToast(text: String) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(SEARCH_TAG, queryState.value)
-        outState.putString(CITY_TAG, cityState.value)
-        outState.putString(WEATHER_TAG, weatherState.value)
-        humidityState.value?.let { outState.putInt(HUMIDITY_TAG, it) }
-        cloudyState.value?.let { outState.putInt(CLOUDY_TAG, it) }
-        outState.putString(ICON_URL_TAG, iconState.value.first)
-        outState.putString(ICON_DESCRIPTION_TAG, iconState.value.second)
-        outState.putBoolean(FAVORITE_TAG, favoriteStatusState.value)
-        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
